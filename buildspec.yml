@@ -2,31 +2,34 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.8
     commands:
-      - echo Installing necessary tools...
+      - echo "Installing necessary tools..."
       - apt-get update && apt-get install -y dnsutils curl
-      - echo Installing AWS CLI...
       - pip install --upgrade awscli
 
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
+      - echo "Logging in to Amazon ECR..."
       - aws sts get-caller-identity
-      - echo Checking DNS resolution...
+      - echo "Checking DNS resolution..."
       - nslookup api.ecr-public.us-east-1.amazonaws.com
-      - echo Verifying endpoint connectivity...
+      - echo "Verifying endpoint connectivity..."
       - curl -v https://api.ecr-public.us-east-1.amazonaws.com/
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/h8p8y5w1
 
   build:
     commands:
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - docker build -t k8-cicd-ecr-repo .
-      - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
+      - echo "Starting build phase"
+      # Add your build commands here
+      - echo "Completed build phase"
 
   post_build:
     commands:
-      - echo Pushing the Docker image...
-      - docker push public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
-      - echo Build completed on `date`
+      - echo "Starting post-build phase"
+      # Add your post-build commands here
+      - echo "Completed post-build phase"
+
+artifacts:
+  files:
+    - '**/*'
