@@ -1,10 +1,19 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws sts get-caller-identity # To verify IAM role
+      - aws ecr-public get-login-password --region ap-south-1 | docker login --username AWS --password-stdin public.ecr.aws/h8p8y5w1
   build:
     commands:
-      - echo "It works!"
-
-artifacts:
-  files:
-    - "**/*"
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t k8-cicd-ecr-repo .
+      - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
+      - echo Build completed on `date`
