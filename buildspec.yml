@@ -17,17 +17,22 @@ phases:
       - nslookup api.ecr-public.us-east-1.amazonaws.com
       - echo "Verifying endpoint connectivity..."
       - curl -v https://api.ecr-public.us-east-1.amazonaws.com/
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+      - echo "Logged in to Amazon ECR"
 
   build:
     commands:
       - echo "Starting build phase"
-      # Add your build commands here
+      - echo "Building the Docker image..."
+      - docker build -t k8-cicd-ecr-repo:latest .
+      - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/347209976305/k8-cicd-ecr-repo:latest
       - echo "Completed build phase"
 
   post_build:
     commands:
       - echo "Starting post-build phase"
-      # Add your post-build commands here
+      - echo "Pushing the Docker image to ECR..."
+      - docker push public.ecr.aws/347209976305/k8-cicd-ecr-repo:latest
       - echo "Completed post-build phase"
 
 artifacts:
