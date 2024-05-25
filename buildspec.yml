@@ -3,21 +3,28 @@ version: 0.2
 phases:
   install:
     commands:
+      - echo Installing necessary tools...
+      - apt-get update && apt-get install -y dnsutils curl
       - echo Installing AWS CLI...
       - pip install --upgrade awscli
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws sts get-caller-identity # To verify IAM role
-      - nslookup api.ecr-public.ap-south-1.amazonaws.com # To check DNS resolution
-      - curl -v https://api.ecr-public.ap-south-1.amazonaws.com/ # To check endpoint connectivity
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/h8p8y5w1
+      - aws sts get-caller-identity
+      - echo Checking DNS resolution...
+      - nslookup api.ecr-public.ap-south-1.amazonaws.com
+      - echo Verifying endpoint connectivity...
+      - curl -v https://api.ecr-public.ap-south-1.amazonaws.com/
+      - aws ecr-public get-login-password --region ap-south-1 | docker login --username AWS --password-stdin public.ecr.aws/h8p8y5w1
+
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t k8-cicd-ecr-repo .
       - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
+
   post_build:
     commands:
       - echo Pushing the Docker image...
