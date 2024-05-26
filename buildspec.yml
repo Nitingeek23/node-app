@@ -21,16 +21,20 @@ phases:
   build:
     commands:
       - echo "Starting build phase"
-      # Add your build commands here
+      - echo "Building the Docker image..."
+      - docker build -t k8-cicd-ecr-repo:latest .
       - echo "Completed build phase"
 
   post_build:
     commands:
       - echo "Starting post-build phase"
-      # Add your post-build commands here
+      - echo "Tagging the Docker image..."
+      - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
+      - echo "Pushing the Docker image to ECR..."
+      - $(aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws)
+      - docker push public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
       - echo "Completed post-build phase"
 
 artifacts:
   files:
     - '**/*'
-
