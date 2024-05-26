@@ -5,14 +5,8 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
-      - echo "Updating package lists..."
-      - apt-get update
       - echo "Installing necessary tools..."
-      - apt-get install -y dnsutils curl
-      - echo "Installing Docker..."
-      - apt-get install -y docker.io
-      - echo "Installing Java Runtime Environment..."
-      - apt-get install -y default-jre
+      - apt-get update && apt-get install -y dnsutils curl
       - pip install --upgrade awscli
 
   pre_build:
@@ -23,27 +17,21 @@ phases:
       - nslookup api.ecr-public.us-east-1.amazonaws.com
       - echo "Verifying endpoint connectivity..."
       - curl -v https://api.ecr-public.us-east-1.amazonaws.com/
-      # Use the authentication token method
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
-      - echo "Logged in to Amazon ECR"
 
   build:
     commands:
       - echo "Starting build phase"
-      - echo "Building the Docker image..."
-      - docker build -t k8-cicd-ecr-repo:latest .
-      - $(aws ecr-public get-login-password --region ap-south-1 | docker login --username AWS --password-stdin public.ecr.aws)
-      - docker tag k8-cicd-ecr-repo:latest 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest
-      - docker push 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest
+      # Add your build commands here
       - echo "Completed build phase"
 
   post_build:
     commands:
       - echo "Starting post-build phase"
-      - echo "Pushing the Docker image to ECR..."
-      - docker push public.ecr.aws/347209976305/k8-cicd-ecr-repo:latest
+      # Add your post-build commands here
       - echo "Completed post-build phase"
 
 artifacts:
   files:
     - '**/*'
+
+buildspec.yml file tointegrate github code repositoy to ecr image create.
