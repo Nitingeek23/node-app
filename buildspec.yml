@@ -23,6 +23,7 @@ phases:
       - nslookup api.ecr-public.us-east-1.amazonaws.com
       - echo "Verifying endpoint connectivity..."
       - curl -v https://api.ecr-public.us-east-1.amazonaws.com/
+      # Use the authentication token method
       - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
       - echo "Logged in to Amazon ECR"
 
@@ -45,3 +46,4 @@ phases:
 artifacts:
   files:
     - '**/*'
+
