@@ -25,7 +25,8 @@ phases:
       - echo "Starting build phase"
       - echo "Building the Docker image..."
       - docker build -t k8-cicd-ecr-repo:latest .
-      - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/347209976305/k8-cicd-ecr-repo:latest
+      - docker tag build -t k8-cicd-ecr-repo:latest 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest 
+      - docker push 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest
       - echo "Completed build phase"
 
   post_build:
