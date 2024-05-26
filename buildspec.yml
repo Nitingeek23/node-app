@@ -34,4 +34,3 @@ artifacts:
   files:
     - '**/*'
 
-buildspec.yml file tointegrate github code repositoy to ecr image create.
