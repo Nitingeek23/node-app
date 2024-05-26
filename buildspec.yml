@@ -5,8 +5,14 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
+      - echo "Updating package lists..."
+      - apt-get update
       - echo "Installing necessary tools..."
-      - apt-get update && apt-get install -y dnsutils curl
+      - apt-get install -y dnsutils curl
+      - echo "Installing Docker..."
+      - apt-get install -y docker.io
+      - echo "Installing Java Runtime Environment..."
+      - apt-get install -y default-jre
       - pip install --upgrade awscli
 
   pre_build:
@@ -25,7 +31,7 @@ phases:
       - echo "Starting build phase"
       - echo "Building the Docker image..."
       - docker build -t k8-cicd-ecr-repo:latest .
-      - docker tag build -t k8-cicd-ecr-repo:latest 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest 
+      - docker tag k8-cicd-ecr-repo:latest 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest
       - docker push 347209976305.dkr.ecr.ap-south-1.amazonaws.com/shubham:latest
       - echo "Completed build phase"
 
