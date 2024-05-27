@@ -11,30 +11,25 @@ phases:
 
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
-      - aws sts get-caller-identity
-      - echo "Checking DNS resolution..."
-      - nslookup api.ecr-public.us-east-1.amazonaws.com
-      - echo "Verifying endpoint connectivity..."
-      - curl -v https://api.ecr-public.us-east-1.amazonaws.com/
-
+      - echo log in to Amazon ECR...
+      - aws --version
+      - echo $AWS_DEFAULT_REGION
+      - $(aws ecr get-login --no-include-email --region us-east-1)
+      - REPOSITORY_URI=public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
-      - echo "Starting build phase"
-      - echo "Building the Docker image..."
-      - docker build -t k8-cicd-ecr-repo:latest .
-      - echo "Completed build phase"
-
+      - echo Build started on `date`
+      - echo Building the Docker image.
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
-      - echo "Starting post-build phase"
-      - echo "Tagging the Docker image..."
-      - docker tag k8-cicd-ecr-repo:latest public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
-      - echo "Pushing the Docker image to ECR..."
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
-      - docker push public.ecr.aws/h8p8y5w1/k8-cicd-ecr-repo:latest
-      - echo "Completed post-build phase"
-
+      - echo Build completed on `date`
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo write definitions file...
+      - printf '[{"name":"exp-code-pipeline","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
-  files:
-    - '**/*'
+  files: imagedefinitions.json
